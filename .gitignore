@@ -1,0 +1,23 @@
+# Node.js
+node_modules/
+dist/
+.env
+
+# Java / Spring Boot
+target/
+*.jar
+*.war
+bootlog*.txt
+build*.txt
+error*.log
+full_output.txt
+output.txt
+err.txt
+uploads/
+
+# IDE / OS
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
