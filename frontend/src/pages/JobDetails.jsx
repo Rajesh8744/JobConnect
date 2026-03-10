@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import axiosInstance from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
@@ -44,6 +45,10 @@ const JobDetails = () => {
 
     return (
         <div className="min-h-screen bg-gray-950 py-10 px-6">
+            <Helmet>
+                <title>{`${job.title} at ${job.company} – JobConnect`}</title>
+                <meta name="description" content={`Apply for ${job.title} at ${job.company}${job.location ? ` in ${job.location}` : ''}. ${job.description?.substring(0, 120)}...`} />
+            </Helmet>
             <div className="max-w-4xl mx-auto">
                 {/* Job Header */}
                 <div className="bg-gray-900/50 border border-gray-800 rounded-2xl p-8 mb-6">

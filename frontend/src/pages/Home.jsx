@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import axiosInstance from '../api/axiosConfig';
 import { useAuth } from '../context/AuthContext';
 
@@ -38,6 +39,10 @@ const Home = () => {
 
     return (
         <div className="min-h-screen bg-gray-950">
+            <Helmet>
+                <title>JobConnect – Find Your Dream Job | Job Portal</title>
+                <meta name="description" content="Browse curated job listings from top companies worldwide. Search by title, location, and salary on JobConnect." />
+            </Helmet>
             {/* Hero */}
             <div className="relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-purple-600/10 to-transparent" />

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -22,6 +23,10 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
+            <Helmet>
+                <title>Sign In – JobConnect</title>
+                <meta name="description" content="Sign in to your JobConnect account to apply for jobs, track applications, and manage your profile." />
+            </Helmet>
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Welcome Back</h1>

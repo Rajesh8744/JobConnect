@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import axiosInstance from '../api/axiosConfig';
 
 const Profile = () => {
@@ -25,6 +26,10 @@ const Profile = () => {
 
     return (
         <div className="min-h-screen bg-gray-950 py-10 px-6">
+            <Helmet>
+                <title>My Profile – JobConnect</title>
+                <meta name="description" content="Manage your JobConnect profile – update your bio, skills, experience, and education to stand out to employers." />
+            </Helmet>
             <div className="max-w-3xl mx-auto">
                 <h1 className="text-3xl font-bold text-white mb-2">My Profile</h1>
                 <p className="text-gray-400 mb-8">Keep your profile up to date to stand out</p>

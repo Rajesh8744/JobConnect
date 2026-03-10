@@ -1,0 +1,6 @@
+# Robots.txt for JobConnect
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://job-connect-mocha.vercel.app/sitemap.xml

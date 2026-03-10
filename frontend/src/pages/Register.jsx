@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useAuth } from '../context/AuthContext';
 
 const Register = () => {
@@ -25,6 +26,10 @@ const Register = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-950 px-4">
+            <Helmet>
+                <title>Create Account – JobConnect</title>
+                <meta name="description" content="Join JobConnect for free. Create your account, build your profile, and start applying to top job listings from companies worldwide." />
+            </Helmet>
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Create Account</h1>
