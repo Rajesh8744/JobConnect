@@ -39,6 +39,14 @@ const Navbar = () => {
                                     <Link to="/profile" className="text-gray-300 hover:text-white transition text-sm font-medium">Profile</Link>
                                 </>
                             )}
+                            {user.role === 'RECRUITER' && (
+                                <>
+                                    <Link to="/recruiter" className="text-gray-300 hover:text-white transition text-sm font-medium">Dashboard</Link>
+                                    <Link to="/recruiter/post-job" className="text-gray-300 hover:text-white transition text-sm font-medium">Post Job</Link>
+                                    <Link to="/recruiter/my-jobs" className="text-gray-300 hover:text-white transition text-sm font-medium">My Jobs</Link>
+                                    <Link to="/recruiter/applications" className="text-gray-300 hover:text-white transition text-sm font-medium">Apps</Link>
+                                </>
+                            )}
                             <div className="flex items-center gap-3 pl-4 border-l border-gray-700">
                                 <span className="text-gray-400 text-sm">{user.fullName}</span>
                                 <button onClick={handleLogout} className="text-red-400 hover:text-red-300 text-sm font-medium transition">Logout</button>

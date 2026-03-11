@@ -1,6 +1,7 @@
 package com.example.jobportal.controller;
 
 import com.example.jobportal.entity.Job;
+import com.example.jobportal.entity.JobPostStatus;
 import com.example.jobportal.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,8 @@ public class JobController {
         
         List<Job> jobs;
         if ((title == null || title.isEmpty()) && (location == null || location.isEmpty())) {
-            jobs = jobRepository.findByIsActiveTrueOrderByPostedDateDesc();
+            // Only return APPROVED and active jobs
+            jobs = jobRepository.findByIsActiveTrueAndStatusOrderByPostedDateDesc(JobPostStatus.APPROVED);
         } else {
             jobs = jobRepository.searchJobs(
                     title != null ? title : "", 

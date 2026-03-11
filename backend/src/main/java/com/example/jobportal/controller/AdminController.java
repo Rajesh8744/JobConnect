@@ -35,6 +35,7 @@ public class AdminController {
     public ResponseEntity<?> importJob(@RequestBody Job job) {
         job.setId(null);
         job.setSource("LINKEDIN");
+        job.setStatus(JobPostStatus.APPROVED);
         job.setPostedDate(LocalDateTime.now());
         jobRepository.save(job);
         return ResponseEntity.ok(Map.of("message", "Job imported from LinkedIn"));
@@ -45,6 +46,7 @@ public class AdminController {
     public ResponseEntity<?> createJob(@RequestBody Job job) {
         job.setId(null);
         job.setSource("ADMIN");
+        job.setStatus(JobPostStatus.APPROVED);
         job.setPostedDate(LocalDateTime.now());
         jobRepository.save(job);
         return ResponseEntity.ok(Map.of("message", "Job created successfully"));
@@ -54,11 +56,11 @@ public class AdminController {
     public ResponseEntity<?> updateJob(@PathVariable String id, @RequestBody Map<String, Object> jobData) {
         Job job = jobRepository.findById(id).orElseThrow(() -> new RuntimeException("Job not found"));
         
-        if (jobData.containsKey("title")) job.setTitle((String) jobData.get("title"));
-        if (jobData.containsKey("company")) job.setCompany((String) jobData.get("company"));
-        if (jobData.containsKey("location")) job.setLocation((String) jobData.get("location"));
-        if (jobData.containsKey("description")) job.setDescription((String) jobData.get("description"));
-        if (jobData.containsKey("requirements")) job.setRequirements((String) jobData.get("requirements"));
+        if (jobData.containsKey("title")) job.setTitle(String.valueOf(jobData.get("title")));
+        if (jobData.containsKey("company")) job.setCompany(String.valueOf(jobData.get("company")));
+        if (jobData.containsKey("location")) job.setLocation(String.valueOf(jobData.get("location")));
+        if (jobData.containsKey("description")) job.setDescription(String.valueOf(jobData.get("description")));
+        if (jobData.containsKey("requirements")) job.setRequirements(String.valueOf(jobData.get("requirements")));
         if (jobData.containsKey("salaryMin")) job.setSalaryMin(Double.valueOf(jobData.get("salaryMin").toString()));
         if (jobData.containsKey("salaryMax")) job.setSalaryMax(Double.valueOf(jobData.get("salaryMax").toString()));
         if (jobData.containsKey("isActive")) job.setIsActive((Boolean) jobData.get("isActive"));
@@ -76,6 +78,42 @@ public class AdminController {
     @GetMapping("/jobs")
     public ResponseEntity<?> getAllJobs() {
         return ResponseEntity.ok(jobRepository.findAll().stream().map(this::mapJob).collect(Collectors.toList()));
+    }
+
+    // --- Recruiter Job Request Management ---
+    @GetMapping("/job-requests")
+    public ResponseEntity<?> getPendingJobRequests() {
+        List<Job> pendingJobs = jobRepository.findByStatusOrderByPostedDateDesc(JobPostStatus.PENDING);
+        return ResponseEntity.ok(pendingJobs.stream().map(this::mapJobRequest).collect(Collectors.toList()));
+    }
+
+    @GetMapping("/job-requests/all")
+    public ResponseEntity<?> getAllJobRequests() {
+        List<Job> recruiterJobs = jobRepository.findAll().stream()
+                .filter(j -> "RECRUITER".equals(j.getSource()))
+                .sorted((a, b) -> b.getPostedDate().compareTo(a.getPostedDate()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(recruiterJobs.stream().map(this::mapJobRequest).collect(Collectors.toList()));
+    }
+
+    @PutMapping("/job-requests/{id}/approve")
+    public ResponseEntity<?> approveJobRequest(@PathVariable String id) {
+        Job job = jobRepository.findById(id).orElseThrow(() -> new RuntimeException("Job not found"));
+        job.setStatus(JobPostStatus.APPROVED);
+        job.setIsActive(true);
+        job.setRejectionReason(null);
+        jobRepository.save(job);
+        return ResponseEntity.ok(Map.of("message", "Job request approved and published"));
+    }
+
+    @PutMapping("/job-requests/{id}/reject")
+    public ResponseEntity<?> rejectJobRequest(@PathVariable String id, @RequestBody Map<String, String> body) {
+        Job job = jobRepository.findById(id).orElseThrow(() -> new RuntimeException("Job not found"));
+        job.setStatus(JobPostStatus.REJECTED);
+        job.setIsActive(false);
+        job.setRejectionReason(body.containsKey("reason") ? String.valueOf(body.get("reason")) : "No reason provided");
+        jobRepository.save(job);
+        return ResponseEntity.ok(Map.of("message", "Job request rejected"));
     }
 
     // --- User Management ---
@@ -116,7 +154,9 @@ public class AdminController {
 
         // Send email notification for specific statuses
         if (status.equals("REVIEWED") || status.equals("SHORTLISTED") || status.equals("REJECTED")) {
+            String fromEmail = app.getJob().getRecruiterEmail() != null ? app.getJob().getRecruiterEmail() : "rajeshcr72463@gmail.com";
             emailService.sendApplicationStatusEmail(
+                fromEmail,
                 app.getSeeker().getEmail(),
                 app.getSeeker().getFullName(),
                 app.getJob().getTitle(),
@@ -129,6 +169,22 @@ public class AdminController {
         return ResponseEntity.ok(Map.of("message", "Status updated"));
     }
 
+    // --- Stats ---
+    @GetMapping("/stats")
+    public ResponseEntity<?> getStats() {
+        long totalUsers = userRepository.count();
+        long totalJobs = jobRepository.count();
+        long pendingRequests = jobRepository.findByStatusOrderByPostedDateDesc(JobPostStatus.PENDING).size();
+        long recruiters = userRepository.findAll().stream().filter(u -> u.getRole() == Role.RECRUITER).count();
+
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("totalUsers", totalUsers);
+        stats.put("totalJobs", totalJobs);
+        stats.put("pendingRequests", pendingRequests);
+        stats.put("totalRecruiters", recruiters);
+        return ResponseEntity.ok(stats);
+    }
+
     private Map<String, Object> mapJob(Job job) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", job.getId());
@@ -136,7 +192,37 @@ public class AdminController {
         map.put("company", job.getCompany());
         map.put("location", job.getLocation());
         map.put("source", job.getSource());
+        map.put("status", job.getStatus());
         map.put("postedDate", job.getPostedDate());
+        map.put("isActive", job.getIsActive());
+        return map;
+    }
+
+    private Map<String, Object> mapJobRequest(Job job) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", job.getId());
+        map.put("title", job.getTitle());
+        map.put("company", job.getCompany());
+        map.put("location", job.getLocation());
+        map.put("description", job.getDescription());
+        map.put("requirements", job.getRequirements());
+        map.put("salaryMin", job.getSalaryMin());
+        map.put("salaryMax", job.getSalaryMax());
+        map.put("source", job.getSource());
+        map.put("status", job.getStatus());
+        map.put("recruiterEmail", job.getRecruiterEmail());
+        map.put("rejectionReason", job.getRejectionReason());
+        map.put("postedDate", job.getPostedDate());
+
+        // Include recruiter info
+        if (job.getPostedBy() != null) {
+            Map<String, String> recruiterInfo = new HashMap<>();
+            recruiterInfo.put("name", job.getPostedBy().getFullName());
+            recruiterInfo.put("email", job.getPostedBy().getEmail());
+            recruiterInfo.put("company", job.getPostedBy().getCompanyName());
+            recruiterInfo.put("phone", job.getPostedBy().getPhone());
+            map.put("recruiter", recruiterInfo);
+        }
         return map;
     }
 

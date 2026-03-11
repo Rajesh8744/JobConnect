@@ -7,6 +7,9 @@ const Register = () => {
     const [fullName, setFullName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [role, setRole] = useState('SEEKER');
+    const [companyName, setCompanyName] = useState('');
+    const [phone, setPhone] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const { register } = useAuth();
@@ -16,7 +19,7 @@ const Register = () => {
         e.preventDefault();
         setError(''); setSuccess('');
         try {
-            await register(fullName, email, password);
+            await register(fullName, email, password, role, companyName, phone);
             setSuccess('Account created! Redirecting...');
             setTimeout(() => navigate('/login'), 1500);
         } catch (err) {
@@ -33,12 +36,23 @@ const Register = () => {
             <div className="w-full max-w-md">
                 <div className="text-center mb-8">
                     <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Create Account</h1>
-                    <p className="text-gray-400 mt-2">Join JobConnect as a Job Seeker</p>
+                    <p className="text-gray-400 mt-2">Join JobConnect to find or post jobs</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="bg-gray-900/50 backdrop-blur border border-gray-800 rounded-2xl p-8 space-y-5">
                     {error && <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-lg text-sm">{error}</div>}
                     {success && <div className="bg-green-500/10 border border-green-500/30 text-green-400 px-4 py-3 rounded-lg text-sm">{success}</div>}
+
+                    <div className="flex bg-gray-800/50 p-1 rounded-xl">
+                        <button type="button" onClick={() => setRole('SEEKER')}
+                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${role === 'SEEKER' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}>
+                            I'm a Job Seeker
+                        </button>
+                        <button type="button" onClick={() => setRole('RECRUITER')}
+                            className={`flex-1 py-2 text-sm font-medium rounded-lg transition ${role === 'RECRUITER' ? 'bg-indigo-600 text-white shadow-sm' : 'text-gray-400 hover:text-white'}`}>
+                            I'm a Recruiter
+                        </button>
+                    </div>
 
                     <div>
                         <label className="block text-sm text-gray-400 mb-2">Full Name</label>
@@ -60,6 +74,23 @@ const Register = () => {
                             className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
                             placeholder="Min. 6 characters" />
                     </div>
+
+                    {role === 'RECRUITER' && (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2 border-t border-gray-800">
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Company Name *</label>
+                                <input type="text" value={companyName} onChange={e => setCompanyName(e.target.value)} required
+                                    className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
+                                    placeholder="Your Company" />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-gray-400 mb-2">Phone Number</label>
+                                <input type="text" value={phone} onChange={e => setPhone(e.target.value)}
+                                    className="w-full bg-gray-800/50 border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition"
+                                    placeholder="+1 234 567 890" />
+                            </div>
+                        </div>
+                    )}
 
                     <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-xl transition">Create Account</button>
 

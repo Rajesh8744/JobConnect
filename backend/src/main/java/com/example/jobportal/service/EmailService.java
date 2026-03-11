@@ -13,11 +13,12 @@ public class EmailService {
     @Autowired
     private JavaMailSender mailSender;
 
-    public void sendApplicationStatusEmail(String toEmail, String seekerName, String jobTitle, String company, String status, String notes) {
+    public void sendApplicationStatusEmail(String fromEmail, String toEmail, String seekerName, String jobTitle, String company, String status, String notes) {
         CompletableFuture.runAsync(() -> {
             try {
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom("rajeshcr72463@gmail.com");
+                message.setFrom(fromEmail);
+                message.setReplyTo(fromEmail);
                 message.setTo(toEmail);
                 message.setSubject("Application Status Update: " + jobTitle + " at " + company);
                 

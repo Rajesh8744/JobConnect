@@ -33,12 +33,20 @@ public class Job {
     private Double salaryMin;
     private Double salaryMax;
 
-    private String source = "ADMIN"; // LINKEDIN or ADMIN
+    private String source = "ADMIN"; // LINKEDIN, ADMIN, or RECRUITER
 
     private String sourceUrl;
 
     @DBRef
     private User postedBy;
+
+    // Recruiter who submitted this job request
+    private String recruiterEmail;
+
+    // Approval workflow
+    private JobPostStatus status = JobPostStatus.APPROVED;
+
+    private String rejectionReason;
 
     private LocalDateTime postedDate = LocalDateTime.now();
 

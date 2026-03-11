@@ -24,8 +24,8 @@ export const AuthProvider = ({ children }) => {
         return userData;
     };
 
-    const register = async (fullName, email, password) => {
-        await axiosInstance.post('/auth/register', { fullName, email, password });
+    const register = async (fullName, email, password, role = 'SEEKER', companyName = '', phone = '') => {
+        await axiosInstance.post('/auth/register', { fullName, email, password, role, companyName, phone });
     };
 
     const logout = () => {

@@ -27,5 +27,10 @@ public class User {
 
     private Role role;
 
+    // Recruiter-specific fields
+    private String companyName;
+
+    private String phone;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 }

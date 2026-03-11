@@ -1,6 +1,7 @@
 package com.example.jobportal.controller;
 
 import com.example.jobportal.dto.AuthResponse;
+import com.example.jobportal.entity.Role;
 import com.example.jobportal.entity.User;
 import com.example.jobportal.repository.UserRepository;
 import com.example.jobportal.security.JwtTokenProvider;
@@ -24,13 +25,40 @@ public class AuthController {
     @Autowired private JwtTokenProvider jwtTokenProvider;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        System.out.println("DEBUG: Registering user: " + user.getEmail());
-        if (userRepository.existsByEmail(user.getEmail())) {
+    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
+        String email = body.get("email");
+        String password = body.get("password");
+        String fullName = body.get("fullName");
+        String roleStr = body.getOrDefault("role", "SEEKER");
+        String companyName = body.get("companyName");
+        String phone = body.get("phone");
+
+        System.out.println("DEBUG: Registering user: " + email + " as " + roleStr);
+
+        if (userRepository.existsByEmail(email)) {
             return ResponseEntity.badRequest().body(Map.of("message", "Email already taken"));
         }
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(com.example.jobportal.entity.Role.SEEKER);
+
+        // Only allow SEEKER or RECRUITER registration (not ADMIN)
+        Role role;
+        if ("RECRUITER".equalsIgnoreCase(roleStr)) {
+            role = Role.RECRUITER;
+        } else {
+            role = Role.SEEKER;
+        }
+
+        User user = new User();
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setFullName(fullName);
+        user.setRole(role);
+
+        // Set recruiter-specific fields
+        if (role == Role.RECRUITER) {
+            user.setCompanyName(companyName);
+            user.setPhone(phone);
+        }
+
         userRepository.save(user);
         return ResponseEntity.ok(Map.of("message", "User registered successfully"));
     }

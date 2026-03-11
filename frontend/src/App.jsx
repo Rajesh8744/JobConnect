@@ -13,6 +13,12 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminJobs from './pages/AdminJobs';
 import AdminUsers from './pages/AdminUsers';
 import LinkedInImport from './pages/LinkedInImport';
+import AdminRecruiterRequests from './pages/AdminRecruiterRequests';
+
+import RecruiterDashboard from './pages/RecruiterDashboard';
+import RecruiterPostJob from './pages/RecruiterPostJob';
+import RecruiterMyJobs from './pages/RecruiterMyJobs';
+import RecruiterApplications from './pages/RecruiterApplications';
 
 function App() {
   return (
@@ -36,6 +42,13 @@ function App() {
             <Route path="/admin/jobs" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminJobs /></ProtectedRoute>} />
             <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminUsers /></ProtectedRoute>} />
             <Route path="/admin/linkedin" element={<ProtectedRoute allowedRoles={['ADMIN']}><LinkedInImport /></ProtectedRoute>} />
+            <Route path="/admin/requests" element={<ProtectedRoute allowedRoles={['ADMIN']}><AdminRecruiterRequests /></ProtectedRoute>} />
+
+            {/* Recruiter */}
+            <Route path="/recruiter" element={<ProtectedRoute allowedRoles={['RECRUITER']}><RecruiterDashboard /></ProtectedRoute>} />
+            <Route path="/recruiter/post-job" element={<ProtectedRoute allowedRoles={['RECRUITER']}><RecruiterPostJob /></ProtectedRoute>} />
+            <Route path="/recruiter/my-jobs" element={<ProtectedRoute allowedRoles={['RECRUITER']}><RecruiterMyJobs /></ProtectedRoute>} />
+            <Route path="/recruiter/applications" element={<ProtectedRoute allowedRoles={['RECRUITER']}><RecruiterApplications /></ProtectedRoute>} />
           </Routes>
         </div>
       </Router>

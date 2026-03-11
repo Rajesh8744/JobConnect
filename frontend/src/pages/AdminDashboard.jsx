@@ -3,14 +3,15 @@ import { Link } from 'react-router-dom';
 import axiosInstance from '../api/axiosConfig';
 
 const AdminDashboard = () => {
-    const [stats, setStats] = useState({ users: 0, jobs: 0, activeJobs: 0, linkedinJobs: 0 });
+    const [stats, setStats] = useState({ users: 0, jobs: 0, activeJobs: 0, linkedinJobs: 0, pendingRequests: 0 });
 
     useEffect(() => {
         const load = async () => {
             try {
-                const [usersRes, jobsRes] = await Promise.all([
+                const [usersRes, jobsRes, statsRes] = await Promise.all([
                     axiosInstance.get('/admin/users'),
-                    axiosInstance.get('/admin/jobs')
+                    axiosInstance.get('/admin/jobs'),
+                    axiosInstance.get('/admin/stats')
                 ]);
                 const jobs = jobsRes.data;
                 setStats({
@@ -18,6 +19,7 @@ const AdminDashboard = () => {
                     jobs: jobs.length,
                     activeJobs: jobs.filter(j => j.isActive).length,
                     linkedinJobs: jobs.filter(j => j.source === 'LINKEDIN').length,
+                    pendingRequests: statsRes.data.pendingRequests || 0
                 });
             } catch (err) { console.error(err); }
         };
@@ -61,6 +63,15 @@ const AdminDashboard = () => {
                     <Link to="/admin/linkedin" className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 hover:border-indigo-500/50 transition group">
                         <h3 className="text-white font-semibold text-lg group-hover:text-indigo-400 transition">LinkedIn Import</h3>
                         <p className="text-gray-400 text-sm mt-2">Fetch and import jobs from LinkedIn</p>
+                    </Link>
+                    <Link to="/admin/requests" className="bg-gray-900/50 border border-gray-800 rounded-2xl p-6 hover:border-indigo-500/50 transition group relative">
+                        {stats.pendingRequests > 0 && (
+                            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full border-2 border-gray-950">
+                                {stats.pendingRequests}
+                            </span>
+                        )}
+                        <h3 className="text-white font-semibold text-lg group-hover:text-indigo-400 transition">Review Requests</h3>
+                        <p className="text-gray-400 text-sm mt-2">Review and approve recruiter job postings</p>
                     </Link>
                 </div>
             </div>
